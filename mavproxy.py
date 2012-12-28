@@ -255,6 +255,25 @@ def cmd_rc(args):
     mpstate.status.override_counter = 10
     send_rc_override()
 
+def cmd_hil(args):
+    '''enable HIL mode'''
+    if len(args) != 1:
+        print("Usage: hil (0/1)")
+        return
+    try:
+        enable = int(args[0])
+    except:
+        print("Usage: hil (0/1)")
+        return
+    if enable == 1:
+        enable = True
+    elif enable == 0:
+        enable = False
+    else:
+        print("Usage: hil (0/1)")
+    print enable
+    mpstate.master().set_mode_flag(mavutil.mavlink.MAV_MODE_FLAG_HIL_ENABLED,enable)
+
 def cmd_loiter(args):
     '''set LOITER mode'''
     mpstate.master().set_mode_loiter()
@@ -787,6 +806,7 @@ command_map = {
     'setup'   : (cmd_setup,    'go into setup mode'),
     'reset'   : (cmd_reset,    'reopen the connection to the MAVLink master'),
     'status'  : (cmd_status,   'show status'),
+    'hil'    :  (cmd_hil,      'enable HIL mode (1 or 0)'),
     'auto'    : (cmd_auto,     'set AUTO mode'),
     'ground'  : (cmd_ground,   'do a ground start'),
     'level'   : (cmd_level,    'set level on a multicopter'),

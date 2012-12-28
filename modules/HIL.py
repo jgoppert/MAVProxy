@@ -10,6 +10,8 @@ This interfaces to Tools/autotest/jsbsim/runsim.py to run the JSBSim flight simu
 import sys, os, time, socket, errno, struct, math
 from math import degrees, radians
 mpstate = None
+hilDataDt  = 1.0/200.0 # 200 Hz
+hilServoDt = 1.0/50.0 # 50 Hz
 
 class module_state(object):
     def __init__(self):
@@ -67,8 +69,6 @@ def convert_body_frame(phi, theta, phiDot, thetaDot, psiDot):
     q = math.cos(phi)*thetaDot + math.sin(phi)*psiDot*math.cos(theta)
     r = math.cos(phi)*psiDot*math.cos(theta) - math.sin(phi)*thetaDot
     return (p, q, r)
-
-
 
 def check_sim_in():
     '''check for FDM packets from runsim'''
@@ -143,7 +143,7 @@ def check_sim_out():
     '''check if we should send new servos to flightgear'''
     state = mpstate.hil_state
     now = time.time()
-    if now - state.last_sim_send_time < 0.02 or state.servo_output is None:
+    if now - state.last_sim_send_time < hilServoDt or state.servo_output is None:
         return
     state.last_sim_send_time = now
 
@@ -164,7 +164,7 @@ def check_apm_out():
     '''check if we should send new data to the APM'''
     state = mpstate.hil_state
     now = time.time()
-    if now - state.last_apm_send_time < 0.02:
+    if now - state.last_apm_send_time < 1.0/hilDataDt:
         return
     state.last_apm_send_time = now
     if state.hil_state_msg is not None:
